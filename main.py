@@ -1,50 +1,68 @@
-import typer  # Importación de librería de modelado y color
-import openai  # Importación de librería openai
-import config
-from rich import print  # Importación de librería de tablas 
+import openai  # pip install openai
+import typer  # pip install "typer[all]"
+from rich import print  # pip install rich
 from rich.table import Table
 
-def main():
-    # Definición de key
-    total = 0
-    openai.api_key = config.api_key #Key de openai
-    title = "💬 [bold green]Asistente virtual en Python con ChatGP[/bold green] 💬"
-    print(title.center(150 ," "))      #Cabecera de la tabla
+"""
+Webs de interés:
+- Módulo OpenAI: https://github.com/openai/openai-python
+- Documentación API ChatGPT: https://platform.openai.com/docs/api-reference/chat
+- Typer: https://typer.tiangolo.com
+- Rich: https://rich.readthedocs.io/en/stable/
+"""
 
-    table = Table( " [blue] Comando [/blue]", "[blue] Descripción [/blue]".center(50))  #Parámetros para la tabla Columnas
-    table.add_row("exit", "Salir de la aplicación") #Contenido de la tabla Filas
-    table.add_row("new", "Crear una nueva conversación") #Contenido de la tabla Filas
+
+def main():
+
+    openai.api_key = "TU_API_KEY creada en https://platform.openai.com"
+
+    print("💬 [bold green]ChatGPT API en Python[/bold green]")
+
+    table = Table("Comando", "Descripción")
+    table.add_row("exit", "Salir de la aplicación")
+    table.add_row("new", "Crear una nueva conversación")
+
     print(table)
 
-    # Contexto del asistente virtual
+    # Contexto del asistente
     context = {"role": "system",
-               "content": "Eres un asistente muy útil." "Ayudas a hacer textos."}
+               "content": "Eres un asistente muy útil."}
     messages = [context]
 
     while True:
+
         content = __prompt()
 
         if content == "new":
-            print("🆕 Se a creado una nueva conversación")
+            print("🆕 Nueva conversación creada")
             messages = [context]
             content = __prompt()
 
         messages.append({"role": "user", "content": content})
-        response = openai.ChatCompletion.create( model="gpt-3.5-turbo", messages=messages)
+
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo", messages=messages)
+
         response_content = response.choices[0].message.content
+
         messages.append({"role": "assistant", "content": response_content})
-        print(f"\n[bold green]💻 [/bold green] [blue]{response_content}[/blue]")
+
+        print(f"[bold green]> [/bold green] [green]{response_content}[/green]")
 
 
 def __prompt() -> str:
-    prompt = typer.prompt("\n📌 ¿Qué deseas preguntarme?")
+    prompt = typer.prompt("\n¿Sobre qué quieres hablar? ")
+
     if prompt == "exit":
-        exit = typer.confirm("\n    🛑 ¿Estás seguro?")
+        exit = typer.confirm("✋ ¿Estás seguro?")
         if exit:
-            print("\n👋 ¡Nos vemos después!\n")
+            print("👋 ¡Hasta luego!")
             raise typer.Abort()
+
         return __prompt()
+
     return prompt
+
 
 if __name__ == "__main__":
     typer.run(main)
